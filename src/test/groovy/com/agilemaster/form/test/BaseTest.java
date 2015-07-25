@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.agilemaster.cassandra.CassandraJunjieForm;
+import com.agilemaster.cassandra.CassandraJunjieConfig;
 import com.agilemaster.cassandra.InitSchema;
 import com.agilemaster.cassandra.option.CassandraTemplate;
 import com.datastax.driver.core.Cluster;
@@ -23,15 +23,15 @@ public class BaseTest {
 		 */
 		InitSchema initSchema = new InitSchemaTest();
 		initSchema.setCreateDrop(true);
-		CassandraJunjieForm.setInitSchema(initSchema);
-		CassandraJunjieForm.init(builder);
-		CassandraJunjieForm.setKeySpace("testKeySpace");
-		cassandraTemplate = CassandraJunjieForm.getInstance();
+		CassandraJunjieConfig.setInitSchema(initSchema);
+		CassandraJunjieConfig.init(builder);
+		CassandraJunjieConfig.setKeySpace("testKeySpace");
+		cassandraTemplate = CassandraJunjieConfig.getInstance();
 	}
 	
 	@After
 	public void after(){
-		CassandraJunjieForm.close();
+		CassandraJunjieConfig.close();
 	}
 	
 }

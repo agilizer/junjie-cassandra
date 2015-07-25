@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.agilemaster.cassandra.CassandraJunjieForm;
+import com.agilemaster.cassandra.CassandraJunjieConfig;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Clause;
@@ -66,6 +66,7 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 		return mappingManager.mapper(t).get(id);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void delete(T object) {
 		mappingManager.mapper((Class<T>) object.getClass()).delete(object);
@@ -74,7 +75,6 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 	@Override
 	public <T> void deleteById(Class<T> t, Object id) {
 		mappingManager.mapper(t).delete(id);
-		;
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 			log.warn("update {} warn,updateFields is null or size is 0",tableName);
 			return false;
 		}
-		Update update = QueryBuilder.update(CassandraJunjieForm.getKeySpace(), tableName);
+		Update update = QueryBuilder.update(CassandraJunjieConfig.getKeySpace(), tableName);
 		Assignments temp = null ;
 		for (Entry<String, Object> entry : updateFields.entrySet()) {
 			temp = update.with(set(entry.getKey(), entry.getValue()));
@@ -120,6 +120,14 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 		}else{
 			result = session.execute(cql, args);
 		}
+		return result;
+	}
+
+	@Override
+	public <T> T queryForObject(Class<T> t, String cql, Object... args) {
+		ResultSet resultTempSet = execute(cql,args);
+		com.datastax.driver.mapping.Result<T> resultTemp = mappingManager.mapper(t).map(resultTempSet);
+		T result = resultTemp.one();
 		return result;
 	}
 }

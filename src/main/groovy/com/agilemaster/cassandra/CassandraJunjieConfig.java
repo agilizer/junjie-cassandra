@@ -17,7 +17,7 @@ import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Table;
 import com.datastax.driver.mapping.annotations.UDT;
 
-public class CassandraJunjieForm {
+public class CassandraJunjieConfig {
 	private static Cluster cluster;
 	private static Session session;
 	private static InitSchema initSchema;
@@ -26,7 +26,7 @@ public class CassandraJunjieForm {
 	private static String mappingPackage="";
 	private static String keySpace="junjie_form";
 	private static final Logger log = LoggerFactory
-			.getLogger(CassandraJunjieForm.class);
+			.getLogger(CassandraJunjieConfig.class);
 	public static CassandraTemplate getInstance(){
 		if(cassandraTemplate==null){
 			cassandraTemplate = new CassandraTemplateDefault(session,mappingManager);
@@ -34,7 +34,7 @@ public class CassandraJunjieForm {
 		return cassandraTemplate;
 	}
 	
-	public static  void init() {
+	private static  void init() {
 		if(null==cluster){
 			log.warn("init warn!!!!!! cluster is null load 127.0.0.1 default!");
 			cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
@@ -77,11 +77,13 @@ public class CassandraJunjieForm {
 		 Set<Class<?>> tableDomains = reflections.getTypesAnnotatedWith(Table.class);
 		 for(Class t:tableDomains){
 			 mappingManager.mapper(t);
+			 log.info("-------->mapping Table class:{}",t.getName());
 		 }
 		 
 		 Set<Class<?>> udtDomains = reflections.getTypesAnnotatedWith(UDT.class);
 		 for(Class t:udtDomains){
 			 mappingManager.udtMapper(t);
+			 log.info("-------->mapping UDT class:{}",t.getName());
 		 }
 	}
 
@@ -112,7 +114,7 @@ public class CassandraJunjieForm {
 	}
 
 	public static void setCassandraTemplate(CassandraTemplate cassandraTemplate) {
-		CassandraJunjieForm.cassandraTemplate = cassandraTemplate;
+		CassandraJunjieConfig.cassandraTemplate = cassandraTemplate;
 	}
 
 	public static String getKeySpace() {
@@ -120,7 +122,7 @@ public class CassandraJunjieForm {
 	}
 
 	public static void setKeySpace(String keySpace) {
-		CassandraJunjieForm.keySpace = keySpace;
+		CassandraJunjieConfig.keySpace = keySpace;
 	}
 
 	public static InitSchema getInitSchema() {
@@ -128,11 +130,11 @@ public class CassandraJunjieForm {
 	}
 
 	public static void setSession(Session session) {
-		CassandraJunjieForm.session = session;
+		CassandraJunjieConfig.session = session;
 	}
 
 	public static void setMappingManager(MappingManager mappingManager) {
-		CassandraJunjieForm.mappingManager = mappingManager;
+		CassandraJunjieConfig.mappingManager = mappingManager;
 	}
 
 	

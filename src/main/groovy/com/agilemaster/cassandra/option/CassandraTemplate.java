@@ -18,7 +18,7 @@ public interface CassandraTemplate {
 	<T> T save(T object);
 
 	<T> T getEntity(Class<T> t, Object id);
-
+	
 	<T> void delete(T object);
 
 	<T> void deleteById(Class<T> t, Object id);
@@ -26,5 +26,7 @@ public interface CassandraTemplate {
 	boolean update(String tableName, Map<String, Object> updateFields,
 			List<Clause> whereList);
 	ResultSet execute(String cql,Object... args);
+	
+	<T> T queryForObject(Class<T> t,String cql,Object... args);
 	
 }
