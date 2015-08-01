@@ -2,13 +2,12 @@ apply plugin: 'java'
 apply plugin: "maven"
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
+group="com.agilemaster"
 version = '0.0.1-SNAPSHOT'
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
+
+buildscript { repositories { mavenCentral() } }
 jar {
 	manifest {
 		attributes 'Implementation-Title': 'junjie cassandra', 'Implementation-Version': version
@@ -18,23 +17,52 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+	mavenCentral()
+	maven {
+		credentials {
+			username 'asdtiang'
+			password 'maven123'
+		}
+		url "http://maven.grailsmaster.com/content/repositories/snapshots/"
+	}
+	maven {
+		credentials {
+			username 'asdtiang'
+			password 'maven123'
+		}
+		url "http://maven.grailsmaster.com/content/repositories/releases/"
+	}
 }
 
-configurations {
-    providedRuntime
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) { from components.java }
+	}
+	repositories {
+		maven {
+			credentials {
+				username 'asdtiang'
+				password 'maven123'
+			}
+			if (project.version.endsWith('-SNAPSHOT'))
+				url "http://maven.grailsmaster.com/content/repositories/snapshots/"
+			else
+				url "http://maven.grailsmaster.com/content/repositories/releases/"
+		}
+	}
 }
+
+
+configurations { providedRuntime }
 
 dependencies {
-    compile("org.codehaus.groovy:groovy-all:2.4.1")
+	compile("org.codehaus.groovy:groovy-all:2.4.1")
 	compile('org.apache.commons:commons-lang3:3.3.2')
 	compile('com.datastax.cassandra:cassandra-driver-core:2.1.7')
 	compile 'com.datastax.cassandra:cassandra-driver-mapping:2.1.7'
 	compile  'org.reflections:reflections:0.9.10'
 	compile("com.alibaba:fastjson:1.1.33")
-	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.3'
-	compile 'org.apache.logging.log4j:log4j-core:2.3'
-	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.3'
 	compile fileTree(dir: 'libs',include: '*.jar')
 	testCompile 'junit:junit:4.12'
 }
