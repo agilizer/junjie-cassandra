@@ -19,6 +19,7 @@ import com.datastax.driver.core.querybuilder.Update.Assignments;
 import com.datastax.driver.core.querybuilder.Update.Where;
 import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
+import com.datastax.driver.mapping.UDTMapper;
 
 public class CassandraTemplateDefault implements CassandraTemplate {
 	private static final Logger log = LoggerFactory
@@ -129,5 +130,15 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 		com.datastax.driver.mapping.Result<T> resultTemp = mappingManager.mapper(t).map(resultTempSet);
 		T result = resultTemp.one();
 		return result;
+	}
+
+	@Override
+	public <T> UDTMapper<T> getUDTMapper(Class<T> t) {
+		return mappingManager.udtMapper(t);
+	}
+
+	@Override
+	public <T> T getAccessorMapper(Class<T> t) {
+		return mappingManager.createAccessor(t);
 	}
 }

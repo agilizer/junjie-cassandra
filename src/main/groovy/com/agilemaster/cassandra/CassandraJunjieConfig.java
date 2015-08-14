@@ -14,6 +14,7 @@ import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
+import com.datastax.driver.mapping.annotations.Accessor;
 import com.datastax.driver.mapping.annotations.Table;
 import com.datastax.driver.mapping.annotations.UDT;
 
@@ -84,6 +85,12 @@ public class CassandraJunjieConfig {
 		 for(Class t:udtDomains){
 			 mappingManager.udtMapper(t);
 			 log.info("-------->mapping UDT class:{}",t.getName());
+		 }
+		 
+		 Set<Class<?>> accessors = reflections.getTypesAnnotatedWith(Accessor.class);
+		 for(Class t:accessors){
+			 mappingManager.createAccessor(t);
+			 log.info("-------->mapping Accessor class:{}",t.getName());
 		 }
 	}
 
