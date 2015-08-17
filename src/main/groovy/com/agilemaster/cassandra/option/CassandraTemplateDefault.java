@@ -28,7 +28,7 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 	private MappingManager mappingManager;
 
 	public CassandraTemplateDefault() {
-		
+
 	}
 
 	public CassandraTemplateDefault(Session session,
@@ -58,57 +58,90 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T save(T object) {
-		mappingManager.mapper((Class<T>) object.getClass()).save(object);
+		try {
+			mappingManager.mapper((Class<T>) object.getClass()).save(object);
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
+
 		return object;
 	}
 
 	@Override
 	public <T> T getEntity(Class<T> t, Object id) {
-		return mappingManager.mapper(t).get(id);
+		T result = null;
+		try {
+			if (null != id) {
+				result = mappingManager.mapper(t).get(id);
+			}
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void delete(T object) {
-		mappingManager.mapper((Class<T>) object.getClass()).delete(object);
+		try {
+			mappingManager.mapper((Class<T>) object.getClass()).delete(object);
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
 	}
 
 	@Override
 	public <T> void deleteById(Class<T> t, Object id) {
-		mappingManager.mapper(t).delete(id);
+		try {
+			mappingManager.mapper(t).delete(id);
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
 	}
 
 	@Override
 	public <T> Mapper<T> getMapper(Class<T> t) {
-		return mappingManager.mapper(t);
+		Mapper<T> result = null;
+		try {
+			result = mappingManager.mapper(t);
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
+		return result;
 	}
 
 	@Override
 	public boolean update(String tableName, Map<String, Object> updateFields,
 			List<Clause> whereList) {
-		if(null==updateFields||updateFields.size()==0){
-			log.warn("update {} warn,updateFields is null or size is 0",tableName);
-			return false;
-		}
-		Update update = QueryBuilder.update(CassandraJunjieConfig.getKeySpace(), tableName);
-		Assignments temp = null ;
-		for (Entry<String, Object> entry : updateFields.entrySet()) {
-			temp = update.with(set(entry.getKey(), entry.getValue()));
-		}
-		Where where = null;
-		if(null!=whereList&&whereList.size()>0){
-			for(Clause clause:whereList){
-				if(null!=temp){
-					where =temp.where(clause);
-				}else{
-					where =update.where(clause);
+		try {
+			if (null == updateFields || updateFields.size() == 0) {
+				log.warn("update {} warn,updateFields is null or size is 0",
+						tableName);
+				return false;
+			}
+			Update update = QueryBuilder.update(
+					CassandraJunjieConfig.getKeySpace(), tableName);
+			Assignments temp = null;
+			for (Entry<String, Object> entry : updateFields.entrySet()) {
+				temp = update.with(set(entry.getKey(), entry.getValue()));
+			}
+			Where where = null;
+			if (null != whereList && whereList.size() > 0) {
+				for (Clause clause : whereList) {
+					if (null != temp) {
+						where = temp.where(clause);
+					} else {
+						where = update.where(clause);
+					}
 				}
 			}
-		}
-		if(where==null){
-			 session.execute(temp);
-		}else{
-			session.execute(where);
+			if (where == null) {
+				session.execute(temp);
+			} else {
+				session.execute(where);
+			}
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
 		}
 		return true;
 	}
@@ -116,19 +149,29 @@ public class CassandraTemplateDefault implements CassandraTemplate {
 	@Override
 	public ResultSet execute(String cql, Object... args) {
 		ResultSet result = null;
-		if(null==args){
-			result = session.execute(cql);
-		}else{
-			result = session.execute(cql, args);
+		try {
+			if (null == args) {
+				result = session.execute(cql);
+			} else {
+				result = session.execute(cql, args);
+			}
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
 		}
 		return result;
 	}
 
 	@Override
 	public <T> T queryForObject(Class<T> t, String cql, Object... args) {
-		ResultSet resultTempSet = execute(cql,args);
-		com.datastax.driver.mapping.Result<T> resultTemp = mappingManager.mapper(t).map(resultTempSet);
-		T result = resultTemp.one();
+		T result = null;
+		try {
+			ResultSet resultTempSet = execute(cql, args);
+			com.datastax.driver.mapping.Result<T> resultTemp = mappingManager
+					.mapper(t).map(resultTempSet);
+			result = resultTemp.one();
+		} catch (Exception e) {
+			log.error("cassandra access error-->", e);
+		}
 		return result;
 	}
 
